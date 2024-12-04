@@ -21,5 +21,5 @@
 
 ## Credits  
 
-[@opa334dev](https://github.com/opa334dev) for [ChOma](https://github.com/opa334/ChOma) used for FAT manipulating.  
+[@opa334](https://github.com/opa334) for [ChOma](https://github.com/opa334/ChOma) used for FAT manipulating.  
 [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) used for repackaging the ipa.
