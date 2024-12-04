@@ -18,3 +18,8 @@
 ## Notes  
 
 - Circlefy is compatible only with **iOS 17 and 18** running on **arm64e devices** (A12 and newer).  
+
+## Credits  
+
+[@opa334dev](https://github.com/opa334dev) for [ChOma](https://github.com/opa334/ChOma) used for FAT manipulating.  
+[ZIPFoundation](https://github.com/weichsel/ZIPFoundation) used for repackaging the ipa.
