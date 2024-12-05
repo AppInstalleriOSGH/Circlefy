@@ -6,20 +6,28 @@
 //
 
 import SwiftUI
+import MachO
 
 struct ContentView: View {
     @State var ShowPicker = false
     @State var IPAPath = ""
+    @State var Platform = PLATFORM_VISIONOS
     var body: some View {
         NavigationView {
             Form {
-                Section(footer: Text("Created by [@AppInstalleriOS.bsky.social](https://bsky.app/profile/AppInstalleriOS.bsky.social), using [Ch0ma](https://github.com/opa334/ChOma) by [@opa334dev](https://x.com/opa334dev)")) {
+                Section(footer: Text("Created by [@AppInstalleriOS.bsky.social](https://bsky.app/profile/AppInstalleriOS.bsky.social), using [Ch0ma](https://github.com/opa334/ChOma) by [@opa334dev](https://x.com/opa334dev) and [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)")) {
+                    Picker("Pick a mask", selection: $Platform) {
+                        Text("Circle")
+                            .tag(PLATFORM_VISIONOS)
+                        Text("No mask")
+                            .tag(PLATFORM_MACOS)
+                    }
                     Button("Select IPA") {
                         ShowPicker = true
                     }
                     Button("Modify IPA") {
                         DispatchQueue.global(qos: .background).async {
-                            ModifyIPA(IPAPath)
+                            ModifyIPA(IPAPath, Platform)
                             PresentView(UIActivityViewController(activityItems: [URL(fileURLWithPath: IPAPath)], applicationActivities: []))
                             IPAPath = ""
                         }
@@ -37,7 +45,7 @@ struct ContentView: View {
     }
 }
 
-func ModifyIPA(_ IPAPath: String) {
+func ModifyIPA(_ IPAPath: String, _ Platform: Int32) {
     do {
         let (Alert, ProgressView) = ProgressAlert("Extracting IPA", "")
         guard let ExtractedPath = (Unzip(IPAPath) { Progress in
@@ -54,7 +62,7 @@ func ModifyIPA(_ IPAPath: String) {
             ShowAlert("Error", "Failed to locate executable")
             return
         }
-        ModifyExecutable("\(PayloadPath)/\(App)/\(Executable)")
+        ModifyExecutable("\(PayloadPath)/\(App)/\(Executable)", UInt32(Platform))
         try FileManager.default.removeItem(atPath: IPAPath)
         Alert.SetTitle("Creating IPA")
         guard (Zip(PayloadPath, IPAPath) { Progress in

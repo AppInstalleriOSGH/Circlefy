@@ -67,10 +67,24 @@ NSString* MakeTMPPath(void) {
     return [[[NSFileManager defaultManager] temporaryDirectory].path stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 }
 
-void ModifyExecutable(NSString* executablePath) {
+void ModifyExecutable(NSString* executablePath, uint32_t platform) {
     // Write the visionOS Mach-O to a temporary file
     NSString* visionOSMachOPath = MakeTMPPath();
-    [[[NSData alloc] initWithBase64EncodedString:visionOSMachOB64 options:0] writeToFile:visionOSMachOPath options:NSDataWritingAtomic error:NULL];
+    // TODO: Improve this mess
+    NSMutableData* MachOData = [[NSMutableData alloc] initWithBase64EncodedString:visionOSMachOB64 options:0];
+    struct mach_header_64* header = (struct mach_header_64*)MachOData.mutableBytes;
+    uint8_t *imageHeaderPtr = (uint8_t*)header + sizeof(struct mach_header_64);
+    struct load_command *command = (struct load_command *)imageHeaderPtr;
+    for(int i = 0; i < header->ncmds > 0; ++i) {
+        if(command->cmd == LC_BUILD_VERSION) {
+            struct build_version_command* buildCMD = (struct build_version_command*)command;
+            buildCMD->platform = platform;
+            break;
+        }
+        imageHeaderPtr += command->cmdsize;
+        command = (struct load_command *)imageHeaderPtr;
+    }
+    [MachOData writeToFile:visionOSMachOPath options:NSDataWritingAtomic error:NULL];
     // Get the visionOS Mach-O
     MachO* visionOSMachO = fat_get_single_slice(fat_init_from_path(visionOSMachOPath.UTF8String));
     // Open up the executable

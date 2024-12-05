@@ -4,4 +4,4 @@
 
 #include <Foundation/Foundation.h>
 
-void ModifyExecutable(NSString* executablePath);
+void ModifyExecutable(NSString* executablePath, uint32_t platform);
