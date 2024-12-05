@@ -5,12 +5,12 @@
 ## How Does It Work?  
 
 1. **Platform Detection**:  
-   iOS detects the platform of the app's executable from the Mach-O file. Depending on the platform identifier, the system alters the app icon's appearance.  
+   iOS detects the platform of the app's executable from the Mach-O file. Depending on the platform identifier, the system alters the app icon's appearance. However, apps designed for visionOS or macOS would typically crash on iOS devices due to incompatibility.
    - **visionOS (Platform 11)**: Icons appear circular.  
    - **macOS (Platform 1)**: Icons bypass iOS's icon masking entirely, enabling custom shapes without any restrictions, similar to macOS behavior. 
 
 2. **The Fix**:  
-   Circlefy modifies the **executable file** of the `.ipa` to include two FAT slices:  
+   Circlefy modifies the **executable file** of the app to include two FAT slices:  
    - The **first slice** is a placeholder binary for either the visionOS or macOS platform, depending on the desired icon effect.  
    - The **second slice** is the original app binary.  
 
