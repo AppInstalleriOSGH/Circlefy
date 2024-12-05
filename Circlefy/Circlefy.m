@@ -12,7 +12,7 @@
 #include "choma/Fat.h"
 #include "choma/MachO.h"
 #include "choma/Util.h"
-#include "visionOSMachO.h"
+#include "placeholderMachOBytes.h"
 
 #define ARM64_ALIGNMENT 0xE
 
@@ -68,40 +68,42 @@ NSString* MakeTMPPath(void) {
 }
 
 void ModifyExecutable(NSString* executablePath, uint32_t platform) {
-    // Write the visionOS Mach-O to a temporary file
-    NSString* visionOSMachOPath = MakeTMPPath();
-    // TODO: Improve this mess
-    NSMutableData* MachOData = [[NSMutableData alloc] initWithBase64EncodedString:visionOSMachOB64 options:0];
-    struct mach_header_64* header = (struct mach_header_64*)MachOData.mutableBytes;
-    uint8_t *imageHeaderPtr = (uint8_t*)header + sizeof(struct mach_header_64);
+    struct mach_header_64* header = (struct mach_header_64*)placeholderMachOBytes;
+    // TODO: Find a better "worst slice" architecture
+    // Set the architecture of the placeholder Mach-O to x86
+    header->cputype = 16777223;
+    header->cpusubtype = 3;
+    // Set the platform of the placeholder Mach-O
+    uint8_t* imageHeaderPtr = (uint8_t*)header + sizeof(struct mach_header_64);
     struct load_command *command = (struct load_command *)imageHeaderPtr;
     for(int i = 0; i < header->ncmds > 0; ++i) {
         if(command->cmd == LC_BUILD_VERSION) {
-            struct build_version_command* buildCMD = (struct build_version_command*)command;
-            buildCMD->platform = platform;
+            ((struct build_version_command*)command)->platform = platform;
             break;
         }
         imageHeaderPtr += command->cmdsize;
         command = (struct load_command *)imageHeaderPtr;
     }
-    [MachOData writeToFile:visionOSMachOPath options:NSDataWritingAtomic error:NULL];
-    // Get the visionOS Mach-O
-    MachO* visionOSMachO = fat_get_single_slice(fat_init_from_path(visionOSMachOPath.UTF8String));
+    // Write the placeholder Mach-O to a temporary file
+    NSString* placeholderMachOPath = MakeTMPPath();
+    [[NSData dataWithBytes:placeholderMachOBytes length:sizeof(placeholderMachOBytes)] writeToFile:placeholderMachOPath options:NSDataWritingAtomic error:NULL];
+    // Get the placeholder Mach-O
+    MachO* placeholderMachO = fat_get_single_slice(fat_init_from_path(placeholderMachOPath.UTF8String));
     // Open up the executable
     Fat* fat = fat_init_from_path((char*)executablePath.UTF8String);
-    // Insert the visionOS slice at index 0
+    // Insert the placeholder Mach-O slice at index 0
     fat->slicesCount++;
     fat->slices = realloc(fat->slices, sizeof(MachO*) * fat->slicesCount);
     if (!fat->slices) return;
     for (int i = fat->slicesCount - 2; i >= 0; i--) {
         fat->slices[i + 1] = fat->slices[i];
     }
-    fat->slices[0] = visionOSMachO;
-    // Write it out
+    fat->slices[0] = placeholderMachO;
+    // Write out the modifed executable
     NSString* tmpPath = MakeTMPPath();
     exportFAT(fat, (char*)tmpPath.UTF8String);
     [[NSFileManager defaultManager] removeItemAtPath:executablePath error:NULL];
     [[NSFileManager defaultManager] moveItemAtPath:tmpPath toPath:executablePath error:NULL];
     chmod((char*)executablePath.UTF8String, S_IRWXU | S_IRWXG | S_IRWXO);
-    [[NSFileManager defaultManager] removeItemAtPath:visionOSMachOPath error:NULL];
+    [[NSFileManager defaultManager] removeItemAtPath:placeholderMachOPath error:NULL];
 }
