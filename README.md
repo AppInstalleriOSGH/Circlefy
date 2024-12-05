@@ -1,23 +1,26 @@
 # Circlefy  
 
-**Circlefy** is an iOS app designed to modify `.ipa` files to give their app icons a circular appearance. It achieves this through a unique technique involving visionOS platform detection behavior.  
+**Circlefy** is an iOS app designed to modify `.ipa` files to give their app icons a circular appearance or no mask at all, which allows transparent icons of any shape. It achieves this through a unique technique involving platform detection behavior in Mach-O binaries.
 
 ## How Does It Work?  
 
-1. **visionOS Detection**:  
-   iOS detects the platform of the app's executable from the Mach-O file. When a visionOS platform (platform 11) is detected, the system applies a circular icon to the app. However, apps designed for visionOS would typically crash on iOS devices due to incompatibility.  
+1. **Platform Detection**:  
+   iOS detects the platform of the app's executable from the Mach-O file. Depending on the platform identifier, the system alters the app icon's appearance.  
+   - **visionOS (Platform 11)**: Icons appear circular.  
+   - **macOS (Platform 1)**: Icons bypass iOS's icon masking entirely, enabling custom shapes without any restrictions, similar to macOS behavior. 
 
 2. **The Fix**:  
    Circlefy modifies the **executable file** of the `.ipa` to include two FAT slices:  
-   - The **first slice** is an x86 visionOS binary, acting as a placeholder to trigger the circular icon behavior.  
+   - The **first slice** is a placeholder binary for either the visionOS or macOS platform, depending on the desired icon effect.  
    - The **second slice** is the original app binary.  
 
 3. **iOS Kernel Behavior**:  
-   The iOS kernel evaluates the FAT slices in the binary and selects the most compatible executable for the device. This ensures the app functions correctly while retaining the circular icon effect.  
+   The iOS kernel evaluates the FAT slices in the binary and selects the most compatible executable for the device. This ensures the app functions correctly while retaining the modified icon behavior.  
 
 ## Notes  
 
-- Circlefy is compatible only with **iOS 17 and 18** running on **arm64e devices** (A12 and newer).  
+- Circlefy is compatible only with **iOS 17 and 18** running on **arm64e devices** (A12 and newer).
+- Applications modified by this tool will **not work** when installed with **TrollStore** due to the nature of how it works  
 
 ## Credits  
 
