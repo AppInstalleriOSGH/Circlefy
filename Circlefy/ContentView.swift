@@ -15,7 +15,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(footer: Text("Created by [@AppInstalleriOS.bsky.social](https://bsky.app/profile/AppInstalleriOS.bsky.social), using [Ch0ma](https://github.com/opa334/ChOma) by [@opa334dev](https://x.com/opa334dev) and [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)")) {
+                Section(footer: Text("Created by [@AppInstalleriOS.bsky.social](https://bsky.app/profile/AppInstalleriOS.bsky.social), using [Ch0ma](https://github.com/opa334/ChOma) by [@opa334dev](https://x.com/opa334dev) and [ZIPFoundation](https://github.com/weichsel/ZIPFoundation).")) {
                     Picker("Pick a mask", selection: $Platform) {
                         Text("Circle")
                             .tag(PLATFORM_VISIONOS)
