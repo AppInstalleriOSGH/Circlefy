@@ -69,10 +69,9 @@ NSString* MakeTMPPath(void) {
 
 void ModifyExecutable(NSString* executablePath, uint32_t platform) {
     struct mach_header_64* header = (struct mach_header_64*)placeholderMachOBytes;
-    // TODO: Find a better "worst slice" architecture
-    // Set the architecture of the placeholder Mach-O to x86
-    header->cputype = 16777223;
-    header->cpusubtype = 3;
+    // Set the architecture of the placeholder Mach-O to armv7
+    header->cputype = CPU_TYPE_ARM;
+    header->cpusubtype = CPU_SUBTYPE_ARM_V7;
     // Set the platform of the placeholder Mach-O
     uint8_t* imageHeaderPtr = (uint8_t*)header + sizeof(struct mach_header_64);
     struct load_command *command = (struct load_command *)imageHeaderPtr;
