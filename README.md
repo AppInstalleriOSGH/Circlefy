@@ -21,6 +21,7 @@
 
 - Circlefy is compatible only with **iOS 17 and 18** running on **arm64e devices** (A12 and newer).
 - Applications modified by Circlefy will **not work** when installed with **TrollStore** because **TrollStore** extracts only the best slice from the FAT binary. This removes the necessary placeholder slice required for the modified icon behavior, rendering the modification ineffective.
+- Applications modified by Circlefy will **not work** when installed with **AltStore** because **AltStore** detects the platform of the placeholder slice and rejects the app, as it is not recognized as an iOS platform.
 
 ## Credits  
 
