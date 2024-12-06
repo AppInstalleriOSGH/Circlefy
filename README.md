@@ -11,7 +11,7 @@
 
 2. **The Fix**:  
    Circlefy modifies the **executable file** of the app to include two FAT slices:  
-   - The **first slice** is a placeholder binary for either the visionOS or macOS platform, depending on the desired icon effect.  
+   - The **first slice** is an armv7 placeholder binary for either the visionOS or macOS platform, depending on the desired icon effect.  
    - The **second slice** is the original app binary.  
 
 3. **iOS Kernel Behavior**:  
